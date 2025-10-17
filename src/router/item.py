@@ -20,7 +20,9 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 @router.post('/', response_model=ItemDetails)
 async def create_item(file: UploadFile, session: T_Session, current_user: T_User):
     
-    file_name = f'{datetime.now().strftime("%Y%m%d%H%M%S%f")}_{Path(file.filename).name}'
+    name, extensao = os.path.splitext(file.filename)
+    
+    file_name = f'{name}_{datetime.now().strftime("%Y%m%d%H%M%S%f")}{extensao}'
     file_path = os.path.join(UPLOAD_DIR, file_name)
     
     with open(file_path, "wb") as f:
@@ -64,7 +66,7 @@ async def download_item_by_id(item_id: int, session: T_Session, current_user: T_
     if not os.path.exists(db_file.filepath):
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail= (f'Item with ID: {item_id} not found in directory'))
     
-    return FileResponse(db_file.filepath, headers={'Content-Disposition': 'attachment'})
+    return FileResponse(path=db_file.filepath, headers={'Content-Disposition': 'attachment'}, filename=db_file.filename)
 
 @router.delete('/{id}')
 async def delete_item_by_id(item_id: int, session: T_Session, current_user: T_User):
