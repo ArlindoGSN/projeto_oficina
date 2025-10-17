@@ -1,20 +1,20 @@
 from fastapi import FastAPI, status
-
-from .schemas import Message
+from src.router.user import router as user
+from src.router.item import router as item
+from src.router.auth import router as auth
 
 app = FastAPI()
 
-
-@app.get("/", response_model=Message, status_code=status.HTTP_200_OK)
-def read_root():
-    return Message(message="Hello, World!")
-
-
-@app.get("/health", response_model=Message, status_code=status.HTTP_200_OK)
-def read_health():
-    return Message(message="OK")
+app.include_router(user, tags=['User'], prefix='/users')
+app.include_router(item, tags=['Item'], prefix='/itens')
+app.include_router(auth, tags=['Auth'], prefix='/auth')
 
 
-@app.post("/items/", response_model=Message, status_code=status.HTTP_201_CREATED)
-def create_item(item: Message):
-    return item
+@app.get("/", status_code=status.HTTP_200_OK)
+async def read_root():
+    return {'Hello, World'}
+
+
+@app.get("/health", status_code=status.HTTP_200_OK)
+async def read_health():
+    return {'Ok'}

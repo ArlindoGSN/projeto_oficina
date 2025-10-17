@@ -1,6 +1,6 @@
 from datetime import datetime
-from sqlalchemy import String, ForeignKey, Integer, DateTime, Boolean, func, registry
-from sqlalchemy.orm import Mapped, mapped_column, relationship, mapped_as_dataclass
+from sqlalchemy import String, ForeignKey, Integer, DateTime, Boolean, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship, mapped_as_dataclass, registry
 
 mapper_registry = registry()
 
@@ -15,17 +15,17 @@ class User:
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    files: Mapped[list["File"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan",  default_factory=list, lazy='selectin'
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), init=False
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), init=False
     )
-
-    files: Mapped[list["File"]] = relationship(
-        back_populates="user", cascade="all, delete-orphan"
-    )
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
 
 @mapped_as_dataclass(mapper_registry)
@@ -37,11 +37,9 @@ class File:
     )
     filename: Mapped[str] = mapped_column(String(255), nullable=False)
     filepath: Mapped[str] = mapped_column(String(500), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    user: Mapped["User"] = relationship(back_populates="files", lazy='selectin', init=False)
     uploaded_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), init=False
     )
-
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-
-    user: Mapped["User"] = relationship(back_populates="files")
 
