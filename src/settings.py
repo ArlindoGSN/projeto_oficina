@@ -8,3 +8,9 @@ class Settings(BaseSettings):
     }
 
     DATABASE_URL: str
+    SECRET: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    ALGORITHM: str
+
+
+settings = Settings()

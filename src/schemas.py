@@ -1,12 +1,17 @@
 from pydantic import BaseModel
 
 
+class Message(BaseModel):
+    message: str
+
+
 class UserDetails(BaseModel):
     id: int
     username: str
     email: str
-    password: str
     is_active: bool
+
+    model_config = {"from_attributes": True}  # permite criar a partir de instâncias ORM
 
 
 class UserCreate(BaseModel):
@@ -31,3 +36,8 @@ class ItemDetails(BaseModel):
     id: int
     name: str
     description: str | None = None
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
